@@ -48,10 +48,10 @@ public class Utilities {
       e.printStackTrace();
     }
     
-    return res;
+    return Collections.unmodifiableMap(res);
   }
 
-  public static Map<Integer, Set<Integer>> readDocClassification(String fp) {
+  public static Map<Integer, Set<Integer>> readTopicDocuments(String fp) {
     Map<Integer, Set<Integer>> res = new HashMap<Integer, Set<Integer>>();
     
     if (fp == null || fp.length() == 0) return res;
@@ -65,13 +65,13 @@ public class Utilities {
         int docid = Integer.parseInt(fields[0]);
         int classid = Integer.parseInt(fields[1]);
         
-        if (res.containsKey(docid)) {
-          res.get(docid).add(classid);
+        if (res.containsKey(classid)) {
+          res.get(classid).add(docid);
         } else {
           Set<Integer> cset = new HashSet<Integer>();
-          cset.add(classid);
+          cset.add(docid);
           
-          res.put(docid, cset);
+          res.put(classid, cset);
         }
       }
       
@@ -82,7 +82,30 @@ public class Utilities {
       e.printStackTrace();
     }
     
-    return res;
+    return Collections.unmodifiableMap(res);
+  }
+  
+  public static Map<Integer, Set<Integer>> getDocumentTopics(Map<Integer, Set<Integer>> tds) {
+    Map<Integer, Set<Integer>> res = new HashMap<Integer, Set<Integer>>();
+    
+    if (tds == null || tds.size() == 0) return res;
+    
+    for (Entry<Integer, Set<Integer>> entry : tds.entrySet()) {
+      Integer tid = entry.getKey();
+      
+      for (Integer docid : entry.getValue()) {
+        if (res.containsKey(docid)) {
+          res.get(docid).add(tid);
+        } else {
+          Set<Integer> tset = new HashSet<Integer>();
+          tset.add(tid);
+          
+          res.put(docid, tset);
+        }
+      }
+    }
+    
+    return Collections.unmodifiableMap(res);
   }
   
   public static Map<Integer, Set<Integer>> readTransitionMatrix(String fp) {

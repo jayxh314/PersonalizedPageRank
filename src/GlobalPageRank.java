@@ -4,14 +4,46 @@ import java.util.Map.Entry;
 public class GlobalPageRank extends AbstractPageRank {
   
   private double dampingFactor; // 1 - alpha
+  
+  private List<Double> prvalues;
+  
+  private List<Double> preprvalues;
 
   public GlobalPageRank(int d, double dp, String mfp) {
     super(d, mfp);
     this.dampingFactor = dp;
+    
+    this.prvalues = this.initPageRankVector();
+    this.preprvalues = null;
+  }
+  
+  private List<Double> initPageRankVector() {
+    List<Double> res = new ArrayList<Double>();
+    
+    for (int i = 0; i < this.dimension; i++) {
+      res.add(1.0/(double) this.dimension);
+    }
+    
+    return res;
+  }
+  
+  protected final boolean isConverged() {
+    if (this.preprvalues == null) return false;
+    
+    double edistance = 0.0;
+    
+    for (int i = 0; i < this.dimension; i++) {
+      edistance += Math.pow(this.preprvalues.get(i) - this.prvalues.get(i), 2.0);
+//      System.out.println(this.preprvalues.get(i) + ", " + this.prvalues.get(i) + ", " + edistance);
+    }
+    edistance = Math.sqrt(edistance) / (double) this.dimension;
+    
+    System.out.println("Converge? " + edistance);
+    return (edistance < 0.00000001);
   }
 
   @Override
-  protected void runIteration() {
+  protected final void runIteration() {
     long curtime = System.currentTimeMillis();
     List<Double> curprs = this.getPageRankValues();
     List<Double> newprs = new ArrayList<Double>(this.dimension);
@@ -54,6 +86,15 @@ public class GlobalPageRank extends AbstractPageRank {
     
     this.updatePageRankValue(newprs);
     System.out.println(System.currentTimeMillis() - curtime);
+  }
+  
+  private void updatePageRankValue(List<Double> newprvalues) {
+    this.preprvalues = this.prvalues;
+    this.prvalues = newprvalues;
+  }
+  
+  public List<Double> getPageRankValues() {
+    return Collections.unmodifiableList(this.prvalues);
   }
 
   /**
