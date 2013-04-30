@@ -15,6 +15,7 @@ public class GlobalPageRank extends AbstractPageRank {
     long curtime = System.currentTimeMillis();
     List<Double> curprs = this.getPageRankValues();
     List<Double> newprs = new ArrayList<Double>(this.dimension);
+    Set<Integer> nooutlink = new HashSet<Integer>();
     
     // 1. compute Alpha * r
     double sumr = 0.0;
@@ -36,6 +37,19 @@ public class GlobalPageRank extends AbstractPageRank {
       }
       
       newprs.set(toDocId - 1, newprs.get(toDocId - 1) + tempsum);
+      
+      if (!this.transitionMatrix.containsKey(toDocId))
+        nooutlink.add(toDocId);
+    }
+    
+    // 3. distribute the pr score of those nodes without out links
+    sumr = 0.0;
+    for (Integer id : nooutlink) {
+      sumr += curprs.get(id - 1);
+    }
+    sumr = this.dampingFactor * sumr / (double) this.dimension;
+    for (int i = 0; i < this.dimension; i++) {
+      newprs.set(i, newprs.get(i) + sumr);
     }
     
     this.updatePageRankValue(newprs);

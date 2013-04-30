@@ -92,7 +92,7 @@ public class Utilities {
     
     try {
       BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(fp))));
-      
+ 
       String line = null;
       while((line = reader.readLine()) != null) {
         String[] fields = line.split(" ");
@@ -100,7 +100,7 @@ public class Utilities {
         int to = Integer.parseInt(fields[1]);
         
         if (res.containsKey(from)) {
-          res.get(from).add(from);
+          res.get(from).add(to);
         } else {
           Set<Integer> cset = new HashSet<Integer>();
           cset.add(to);

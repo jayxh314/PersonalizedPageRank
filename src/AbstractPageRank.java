@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.Map.Entry;
 
 public abstract class AbstractPageRank {
   protected int dimension;
