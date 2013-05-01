@@ -148,5 +148,15 @@ public class TopicSensitivePageRank extends AbstractPageRank {
     TopicSensitivePageRank tpr = new TopicSensitivePageRank(81433, 12, 0.75, 0.15, "transition.txt", "doc_topics.txt");
     
     tpr.run();
+    
+    List<List<Double>> prs = tpr.getTopicPageRankValues();
+    int count = 1;
+    for (List<Double> tprs : prs) {
+      System.out.println("Topic " + count);
+      count ++;
+      
+      AbstractPageRank.printRankingResult(tprs, 10);
+    }
+    
   }
 }

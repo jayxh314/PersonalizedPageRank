@@ -32,14 +32,18 @@ public class GlobalPageRank extends AbstractPageRank {
     
     double edistance = 0.0;
     
+//    for (int i = 0; i < this.dimension; i++) {
+//      edistance += Math.pow(this.preprvalues.get(i) - this.prvalues.get(i), 2.0);
+//    }
+//    edistance = Math.sqrt(edistance) / (double) this.dimension;
+    
     for (int i = 0; i < this.dimension; i++) {
-      edistance += Math.pow(this.preprvalues.get(i) - this.prvalues.get(i), 2.0);
-//      System.out.println(this.preprvalues.get(i) + ", " + this.prvalues.get(i) + ", " + edistance);
+      edistance += Math.abs(this.preprvalues.get(i) - this.prvalues.get(i));
     }
-    edistance = Math.sqrt(edistance) / (double) this.dimension;
     
     System.out.println("Converge? " + edistance);
-    return (edistance < 0.00000001);
+//    return (edistance < 0.00000001);
+    return (edistance < 0.001);
   }
 
   @Override
@@ -107,28 +111,7 @@ public class GlobalPageRank extends AbstractPageRank {
     
     List<Double> scores = gpr.getPageRankValues();
     
-    PriorityQueue<Double> temp = new PriorityQueue<Double>(100, new Comparator<Double>() {
-
-      @Override
-      public int compare(Double arg0, Double arg1) {
-        if (arg0 - arg1 > 0) return 1;
-        if (arg0 - arg1 < 0) return -1;
-        return 0;
-      }
-      
-    });
-    for (Double s : scores){
-      if (temp.size() == 100) {
-        temp.poll();
-        temp.offer(s);
-      } else {
-        temp.offer(s);
-      }
-    }
-    
-    while(!temp.isEmpty()) {
-      System.out.println(temp.poll());
-    }
+    AbstractPageRank.printRankingResult(scores, 30);
   }
 
 }
