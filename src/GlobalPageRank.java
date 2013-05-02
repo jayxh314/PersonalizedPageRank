@@ -103,6 +103,7 @@ public class GlobalPageRank extends AbstractPageRank {
   }
 
   public static void main(String[] args) {
+    
     if (args.length != 3) {
       System.err.println("Usage: <test_dir> <method> <output>");
       return ;
@@ -139,6 +140,7 @@ public class GlobalPageRank extends AbstractPageRank {
         while((line = reader.readLine()) != null) {
           String[] fields = line.split(" ");
           int docid = Integer.parseInt(fields[2]);
+          double relscore = Double.parseDouble(fields[4]);
           double score = 0.0;
           
           switch (method) {
@@ -146,6 +148,7 @@ public class GlobalPageRank extends AbstractPageRank {
               score = scores.get(docid - 1);
               break;
             case 2:
+              score = scores.get(docid - 1) + relscore;
               break;
             case 3:
               break;
@@ -182,10 +185,7 @@ public class GlobalPageRank extends AbstractPageRank {
     } catch (IOException e) {
       e.printStackTrace();
     }
-    
-
-    
-    
+ 
   }
 
 }

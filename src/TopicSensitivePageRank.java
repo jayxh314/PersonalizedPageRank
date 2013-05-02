@@ -183,6 +183,7 @@ public class TopicSensitivePageRank extends AbstractPageRank {
         while((line = reader.readLine()) != null) {
           String[] fields = line.split(" ");
           int docid = Integer.parseInt(fields[2]);
+          double relscore = Double.parseDouble(fields[4]);
           double score = 0.0;
           
           switch (method) {
@@ -192,6 +193,10 @@ public class TopicSensitivePageRank extends AbstractPageRank {
               }
               break;
             case 2:
+              for (int i = 0; i < tnum; i++) {
+                score += dist.get(userqueryid).get(i) * prvectors.get(i).get(docid - 1);
+              }
+              score += relscore;
               break;
             case 3:
               break;
