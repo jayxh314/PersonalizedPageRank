@@ -1,3 +1,4 @@
+import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -102,13 +103,89 @@ public class GlobalPageRank extends AbstractPageRank {
   }
 
   public static void main(String[] args) {
-    GlobalPageRank gpr = new GlobalPageRank(81433, 0.85, "transition.txt");
+    if (args.length != 3) {
+      System.err.println("Usage: <test_dir> <method> <output>");
+      return ;
+    }
     
-    gpr.run();
+    String testDir = args[0];
+    int method = Integer.parseInt(args[1]);
+    String outpuFilename = args[2];
     
-    List<Double> scores = gpr.getPageRankValues();
+    try {
+      BufferedWriter outputWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(outpuFilename))));
+      
+      File[] testFiles = (new File(testDir)).listFiles(new FilenameFilter() {
+
+        @Override
+        public boolean accept(File dir, String fname) {
+          return fname.endsWith(".results.txt");
+        }
+        
+      });
+      
+      GlobalPageRank gpr = new GlobalPageRank(81433, 0.85, "transition.txt");
+      gpr.run();
+
+      List<Double> scores = gpr.getPageRankValues();
+      
+      for (File tfile : testFiles) {
+        System.out.println("Processing " + tfile.getName());
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(tfile)));
+        String userqueryid = tfile.getName().substring(0, tfile.getName().indexOf("."));
+        Map<Integer, Double> result = new HashMap<Integer, Double>();
+        
+        String line = null;
+        while((line = reader.readLine()) != null) {
+          String[] fields = line.split(" ");
+          int docid = Integer.parseInt(fields[2]);
+          double score = 0.0;
+          
+          switch (method) {
+            case 1:
+              score = scores.get(docid - 1);
+              break;
+            case 2:
+              break;
+            case 3:
+              break;
+          }
+          
+          result.put(docid, score);
+        }
+        
+        List<Entry<Integer, Double>> rankingItems = new ArrayList<Entry<Integer, Double>>(result.entrySet());
+        Collections.sort(rankingItems, new Comparator<Entry<Integer, Double>>() {
+
+          @Override
+          public int compare(Entry<Integer, Double> arg0, Entry<Integer, Double> arg1) {
+            if (arg0.getValue() > arg1.getValue()) return -1;
+            if (arg0.getValue() < arg1.getValue()) return 1;
+            return 0;
+          }
+          
+        });
+        
+        for (int i = 0; i < rankingItems.size(); i++) {
+          outputWriter.write(userqueryid + " Q0 " + rankingItems.get(i).getKey() + " " + (i+1) + " " + rankingItems.get(i).getValue() + " indri\n");
+        }
+        outputWriter.flush();
+        
+        reader.close();
+      }
+      
+      outputWriter.close();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (NumberFormatException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
     
-    AbstractPageRank.printRankingResult(scores, 30);
+
+    
+    
   }
 
 }

@@ -143,18 +143,6 @@ public class TopicSensitivePageRank extends AbstractPageRank {
   }
 
   public static void main(String[] args) {
-//    TopicSensitivePageRank tpr = new TopicSensitivePageRank(81433, 12, 0.75, 0.15, "transition.txt", "doc_topics.txt");
-//    
-//    tpr.run();
-//    
-//    List<List<Double>> prs = tpr.getTopicPageRankValues();
-//    int count = 1;
-//    for (List<Double> tprs : prs) {
-//      System.out.println("Topic " + count);
-//      count ++;
-//      
-//      AbstractPageRank.printRankingResult(tprs, 20);
-//    }
     if (args.length != 5) {
       System.err.println("Usage: <topic_num> <distribution_file> <test_dir> <method> <output>");
       return ;
@@ -189,14 +177,11 @@ public class TopicSensitivePageRank extends AbstractPageRank {
         System.out.println("Processing " + tfile.getName());
         BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(tfile)));
         String userqueryid = tfile.getName().substring(0, tfile.getName().indexOf('.'));
-        String[] fields = userqueryid.split("-");
-        int uid = Integer.parseInt(fields[0]);
-        int qid = Integer.parseInt(fields[1]);
         Map<Integer, Double> result = new HashMap<Integer, Double>();
         
         String line = null;
         while((line = reader.readLine()) != null) {
-          fields = line.split(" ");
+          String[] fields = line.split(" ");
           int docid = Integer.parseInt(fields[2]);
           double score = 0.0;
           
@@ -228,7 +213,7 @@ public class TopicSensitivePageRank extends AbstractPageRank {
         });
         
         for (int i = 0; i < rankingItems.size(); i++) {
-          outputWriter.write(uid + " Q" + qid + " " + rankingItems.get(i).getKey() + " " + (i+1) + " " + rankingItems.get(i).getValue() + " indri\n");
+          outputWriter.write(userqueryid + " Q0 " + rankingItems.get(i).getKey() + " " + (i+1) + " " + rankingItems.get(i).getValue() + " indri\n");
         }
         outputWriter.flush();
         
