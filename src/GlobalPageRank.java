@@ -32,18 +32,18 @@ public class GlobalPageRank extends AbstractPageRank {
     
     double edistance = 0.0;
     
-//    for (int i = 0; i < this.dimension; i++) {
-//      edistance += Math.pow(this.preprvalues.get(i) - this.prvalues.get(i), 2.0);
-//    }
-//    edistance = Math.sqrt(edistance) / (double) this.dimension;
-    
     for (int i = 0; i < this.dimension; i++) {
-      edistance += Math.abs(this.preprvalues.get(i) - this.prvalues.get(i));
+      edistance += Math.pow(this.preprvalues.get(i) - this.prvalues.get(i), 2.0);
     }
+    edistance = Math.sqrt(edistance) / (double) this.dimension;
+    
+//    for (int i = 0; i < this.dimension; i++) {
+//      edistance += Math.abs(this.preprvalues.get(i) - this.prvalues.get(i));
+//    }
     
     System.out.println("Converge? " + edistance);
-//    return (edistance < 0.00000001);
-    return (edistance < 0.001);
+    return (edistance < 0.00000001);
+//    return (edistance < 0.001);
   }
 
   @Override
@@ -101,9 +101,6 @@ public class GlobalPageRank extends AbstractPageRank {
     return Collections.unmodifiableList(this.prvalues);
   }
 
-  /**
-   * @param args
-   */
   public static void main(String[] args) {
     GlobalPageRank gpr = new GlobalPageRank(81433, 0.85, "transition.txt");
     

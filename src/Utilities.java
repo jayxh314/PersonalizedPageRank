@@ -4,22 +4,22 @@ import java.util.Map.Entry;
 
 public class Utilities {
   
-  public static class UserQuery {
-    public int userid;
-    public int queryid;
-    
-    public UserQuery(int u, int q) {
-      this.userid = u;
-      this.queryid = q;
-    }
-    
-    public String toString() {
-      return this.userid + " " + this.queryid;
-    }
-  }
+//  public static class UserQuery {
+//    public int userid;
+//    public int queryid;
+//    
+//    public UserQuery(int u, int q) {
+//      this.userid = u;
+//      this.queryid = q;
+//    }
+//    
+//    public String toString() {
+//      return this.userid + " " + this.queryid;
+//    }
+//  }
   
-  public static Map<UserQuery, List<Double>> readTopicDist(String fp) {
-    Map<UserQuery, List<Double>> res = new HashMap<UserQuery, List<Double>>();
+  public static Map<String, List<Double>> readTopicDist(String fp) {
+    Map<String, List<Double>> res = new HashMap<String, List<Double>>();
     
     if (fp == null || fp.length() == 0) return res;
     
@@ -38,7 +38,7 @@ public class Utilities {
           probs.add(Double.parseDouble(fields[i].split(":")[1]));
         }
         
-        res.put(new UserQuery(userid, queryid), probs);
+        res.put(userid + "-" + queryid, probs);
       }
       
       reader.close();

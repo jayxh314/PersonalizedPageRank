@@ -1,3 +1,4 @@
+import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -141,22 +142,104 @@ public class TopicSensitivePageRank extends AbstractPageRank {
     return (edistance < 0.00000001);
   }
 
-  /**
-   * @param args
-   */
   public static void main(String[] args) {
-    TopicSensitivePageRank tpr = new TopicSensitivePageRank(81433, 12, 0.75, 0.15, "transition.txt", "doc_topics.txt");
-    
-    tpr.run();
-    
-    List<List<Double>> prs = tpr.getTopicPageRankValues();
-    int count = 1;
-    for (List<Double> tprs : prs) {
-      System.out.println("Topic " + count);
-      count ++;
-      
-      AbstractPageRank.printRankingResult(tprs, 10);
+//    TopicSensitivePageRank tpr = new TopicSensitivePageRank(81433, 12, 0.75, 0.15, "transition.txt", "doc_topics.txt");
+//    
+//    tpr.run();
+//    
+//    List<List<Double>> prs = tpr.getTopicPageRankValues();
+//    int count = 1;
+//    for (List<Double> tprs : prs) {
+//      System.out.println("Topic " + count);
+//      count ++;
+//      
+//      AbstractPageRank.printRankingResult(tprs, 20);
+//    }
+    if (args.length != 5) {
+      System.err.println("Usage: <topic_num> <distribution_file> <test_dir> <method> <output>");
+      return ;
     }
     
+    String topicDistFilename = args[1];
+    String testDir = args[2];
+    int method = Integer.parseInt(args[3]);
+    String outputFilename = args[4];
+    final int tnum = Integer.parseInt(args[0]);
+    
+    try {
+      BufferedWriter outputWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(outputFilename))));
+      
+      File[] testFiles = (new File(testDir)).listFiles(new FilenameFilter() {
+
+        @Override
+        public boolean accept(File dir, String filename) {
+          return filename.endsWith(".results.txt");
+        }
+        
+      });
+      
+      TopicSensitivePageRank tpr = new TopicSensitivePageRank(81433, tnum, 0.75, 0.15, "transition.txt", "doc_topics.txt");
+      tpr.run();
+      
+      List<List<Double>> prvectors = tpr.getTopicPageRankValues();
+      
+      Map<String, List<Double>> dist = Utilities.readTopicDist(topicDistFilename);
+      
+      for (File tfile : testFiles) {
+        System.out.println("Processing " + tfile.getName());
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(tfile)));
+        String userqueryid = tfile.getName().substring(0, tfile.getName().indexOf('.'));
+        String[] fields = userqueryid.split("-");
+        int uid = Integer.parseInt(fields[0]);
+        int qid = Integer.parseInt(fields[1]);
+        Map<Integer, Double> result = new HashMap<Integer, Double>();
+        
+        String line = null;
+        while((line = reader.readLine()) != null) {
+          fields = line.split(" ");
+          int docid = Integer.parseInt(fields[2]);
+          double score = 0.0;
+          
+          switch (method) {
+            case 1:
+              for (int i = 0; i < tnum; i++) {
+                score += dist.get(userqueryid).get(i) * prvectors.get(i).get(docid - 1);
+              }
+              break;
+            case 2:
+              break;
+            case 3:
+              break;
+          }
+          
+          result.put(docid, score);
+        }
+        
+        List<Entry<Integer, Double>> rankingItems = new ArrayList<Entry<Integer, Double>>(result.entrySet());
+        Collections.sort(rankingItems, new Comparator<Entry<Integer, Double>>() {
+
+          @Override
+          public int compare(Entry<Integer, Double> arg0, Entry<Integer, Double> arg1) {
+            if (arg0.getValue() > arg1.getValue()) return -1;
+            if (arg0.getValue() < arg1.getValue()) return 1;
+            return 0;
+          }
+          
+        });
+        
+        for (int i = 0; i < rankingItems.size(); i++) {
+          outputWriter.write(uid + " Q" + qid + " " + rankingItems.get(i).getKey() + " " + (i+1) + " " + rankingItems.get(i).getValue() + " indri\n");
+        }
+        outputWriter.flush();
+        
+        reader.close();
+      }
+      
+      outputWriter.close();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 }
