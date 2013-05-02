@@ -4,20 +4,11 @@ import java.util.Map.Entry;
 
 public class Utilities {
   
-//  public static class UserQuery {
-//    public int userid;
-//    public int queryid;
-//    
-//    public UserQuery(int u, int q) {
-//      this.userid = u;
-//      this.queryid = q;
-//    }
-//    
-//    public String toString() {
-//      return this.userid + " " + this.queryid;
-//    }
-//  }
-  
+  /**
+   * Read the topic distribution from the file
+   * @param fp
+   * @return
+   */
   public static Map<String, List<Double>> readTopicDist(String fp) {
     Map<String, List<Double>> res = new HashMap<String, List<Double>>();
     
@@ -51,6 +42,11 @@ public class Utilities {
     return Collections.unmodifiableMap(res);
   }
 
+  /**
+   * Read the topic-document relations
+   * @param fp
+   * @return
+   */
   public static Map<Integer, Set<Integer>> readTopicDocuments(String fp) {
     Map<Integer, Set<Integer>> res = new HashMap<Integer, Set<Integer>>();
     
@@ -85,6 +81,11 @@ public class Utilities {
     return Collections.unmodifiableMap(res);
   }
   
+  /**
+   * transform the topic-document relations to document-topic relation
+   * @param tds
+   * @return
+   */
   public static Map<Integer, Set<Integer>> getDocumentTopics(Map<Integer, Set<Integer>> tds) {
     Map<Integer, Set<Integer>> res = new HashMap<Integer, Set<Integer>>();
     
@@ -108,6 +109,11 @@ public class Utilities {
     return Collections.unmodifiableMap(res);
   }
   
+  /**
+   * read the transition matrix from the file
+   * @param fp
+   * @return
+   */
   public static Map<Integer, Set<Integer>> readTransitionMatrix(String fp) {
     Map<Integer, Set<Integer>> res = new HashMap<Integer, Set<Integer>>();
     
@@ -142,6 +148,11 @@ public class Utilities {
     return Collections.unmodifiableMap(res);
   }
   
+  /**
+   * transpose the transition matrix
+   * @param matrix
+   * @return
+   */
   public static Map<Integer, Set<Integer>> transposeMatrix(Map<Integer, Set<Integer>> matrix) {
     Map<Integer, Set<Integer>> tmatrix = new HashMap<Integer, Set<Integer>>();
     
@@ -164,12 +175,4 @@ public class Utilities {
     
     return Collections.unmodifiableMap(tmatrix);
   }
-
-  /**
-   * @param args
-   */
-  public static void main(String[] args) {
-    
-  }
-
 }

@@ -2,10 +2,13 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public abstract class AbstractPageRank {
+  // the number of nodes in the graph
   protected int dimension;
   
+  // the transition matrix
   protected Map<Integer, Set<Integer>> transitionMatrix;
   
+  // the transposition of the transition matrix
   protected Map<Integer, Set<Integer>> transposedTransitionMatrix;
   
   public AbstractPageRank(int d, String mfp) {
@@ -14,6 +17,7 @@ public abstract class AbstractPageRank {
     this.transposedTransitionMatrix = Utilities.transposeMatrix(this.transitionMatrix);
   }
   
+  // run the abstract iteration procedure
   public final void run() {
     int count = 1;
     while(!this.isConverged()) {
@@ -23,10 +27,12 @@ public abstract class AbstractPageRank {
     }
   }
   
+  // interfaces for subclasses
   abstract protected boolean isConverged();
   
   abstract protected void runIteration();
   
+  // class for ranking, which records the document id and its pagerank score
   static class RankItem implements Comparable {
     private int docid;
     private double prscore;
@@ -57,6 +63,7 @@ public abstract class AbstractPageRank {
     }
   }
   
+  // print out the ranking result
   static void printRankingResult(final List<Double> prvalues, final int topn) {
     List<RankItem> rankingRes = new ArrayList<RankItem>();
     for (int i = 0; i < prvalues.size(); i++) {

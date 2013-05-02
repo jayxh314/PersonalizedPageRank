@@ -6,8 +6,10 @@ public class GlobalPageRank extends AbstractPageRank {
   
   private double dampingFactor; // 1 - alpha
   
+  // current pagerank values
   private List<Double> prvalues;
   
+  // pagerank values of previous round
   private List<Double> preprvalues;
 
   public GlobalPageRank(int d, double dp, String mfp) {
@@ -18,6 +20,10 @@ public class GlobalPageRank extends AbstractPageRank {
     this.preprvalues = null;
   }
   
+  /**
+   * get the initial pagerank vector.
+   * @return
+   */
   private List<Double> initPageRankVector() {
     List<Double> res = new ArrayList<Double>();
     
@@ -28,6 +34,10 @@ public class GlobalPageRank extends AbstractPageRank {
     return res;
   }
   
+  /**
+   * judge whether the pagerank vector is converged
+   */
+  @Override
   protected final boolean isConverged() {
     if (this.preprvalues == null) return false;
     
@@ -38,21 +48,19 @@ public class GlobalPageRank extends AbstractPageRank {
     }
     edistance = Math.sqrt(edistance) / (double) this.dimension;
     
-//    for (int i = 0; i < this.dimension; i++) {
-//      edistance += Math.abs(this.preprvalues.get(i) - this.prvalues.get(i));
-//    }
-    
-    System.out.println("Converge? " + edistance);
     return (edistance < 0.00000001);
-//    return (edistance < 0.001);
   }
 
+  /**
+   * defines the procedure of each iteration, which is the main part
+   * of pagerank algorithm
+   */
   @Override
   protected final void runIteration() {
     long curtime = System.currentTimeMillis();
     List<Double> curprs = this.getPageRankValues();
     List<Double> newprs = new ArrayList<Double>(this.dimension);
-    Set<Integer> nooutlink = new HashSet<Integer>();
+    Set<Integer> nooutlink = new HashSet<Integer>(); // the set to accommodate those nodes without outlinks
     
     // 1. compute Alpha * r
     double sumr = 0.0;
@@ -75,6 +83,7 @@ public class GlobalPageRank extends AbstractPageRank {
       
       newprs.set(toDocId - 1, newprs.get(toDocId - 1) + tempsum);
       
+      // find a node without outlink
       if (!this.transitionMatrix.containsKey(toDocId))
         nooutlink.add(toDocId);
     }
@@ -89,6 +98,7 @@ public class GlobalPageRank extends AbstractPageRank {
       newprs.set(i, newprs.get(i) + sumr);
     }
     
+    // update the pagerank value vector
     this.updatePageRankValue(newprs);
     System.out.println(System.currentTimeMillis() - curtime);
   }
@@ -125,11 +135,14 @@ public class GlobalPageRank extends AbstractPageRank {
         
       });
       
+      // run the pagerank algorithm
       GlobalPageRank gpr = new GlobalPageRank(81433, 0.85, "transition.txt");
       gpr.run();
 
+      // get the pagerank scores
       List<Double> scores = gpr.getPageRankValues();
       
+      // read the query files
       for (File tfile : testFiles) {
         System.out.println("Processing " + tfile.getName());
         BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(tfile)));
@@ -143,6 +156,7 @@ public class GlobalPageRank extends AbstractPageRank {
           double relscore = Double.parseDouble(fields[4]);
           double score = 0.0;
           
+          // compute the score by different methods
           switch (method) {
             case 1:
               score = scores.get(docid - 1);
@@ -157,6 +171,7 @@ public class GlobalPageRank extends AbstractPageRank {
           result.put(docid, score);
         }
         
+        // sort the result according to the final score
         List<Entry<Integer, Double>> rankingItems = new ArrayList<Entry<Integer, Double>>(result.entrySet());
         Collections.sort(rankingItems, new Comparator<Entry<Integer, Double>>() {
 

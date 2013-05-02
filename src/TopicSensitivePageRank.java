@@ -4,18 +4,23 @@ import java.util.Map.Entry;
 
 public class TopicSensitivePageRank extends AbstractPageRank {
 
+  // the parameters
   private double alpha;
   
   private double beta;
   
   private double gama;
   
+  // the number of topics
   private int topicNumber;
   
+  // current pagerank values for each topic
   private List<List<Double>> topicPRValues;
   
+  // pagerank values for each topic of previous iteration
   private List<List<Double>> preTopicPRValues;
   
+  // the topic-document relation
   private Map<Integer, Set<Integer>> topicDocuments;
   
   public TopicSensitivePageRank(int d, int tn, double a, double b, String mfp, String dcfp) {
@@ -31,6 +36,10 @@ public class TopicSensitivePageRank extends AbstractPageRank {
     this.preTopicPRValues = null;
   }
   
+  /**
+   * Initialize the pagerank vectors
+   * @return
+   */
   private List<List<Double>> initPageRankVectors() {
     List<List<Double>> res = new ArrayList<List<Double>>();
     
@@ -116,6 +125,9 @@ public class TopicSensitivePageRank extends AbstractPageRank {
     this.topicPRValues = newprs;
   }
 
+  /**
+   * judge whether all the pagerank vectors are converged
+   */
   @Override
   protected boolean isConverged() {
     if (this.preTopicPRValues == null) return false;
@@ -128,6 +140,9 @@ public class TopicSensitivePageRank extends AbstractPageRank {
     return true;
   }
   
+  /**
+   * judge whether the pagerank vector for a specific topic is converged
+   */
   private boolean isConverged(List<Double> newv, List<Double> oldv) {
     if (newv == null || oldv == null) return false;
     
@@ -166,13 +181,17 @@ public class TopicSensitivePageRank extends AbstractPageRank {
         
       });
       
+      // run the pagerank algorithm
       TopicSensitivePageRank tpr = new TopicSensitivePageRank(81433, tnum, 0.75, 0.15, "transition.txt", "doc_topics.txt");
       tpr.run();
       
+      // get the pagerank scores
       List<List<Double>> prvectors = tpr.getTopicPageRankValues();
       
+      // get the topic distribution probability
       Map<String, List<Double>> dist = Utilities.readTopicDist(topicDistFilename);
       
+      // read the query files
       for (File tfile : testFiles) {
         System.out.println("Processing " + tfile.getName());
         BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(tfile)));
@@ -186,6 +205,7 @@ public class TopicSensitivePageRank extends AbstractPageRank {
           double relscore = Double.parseDouble(fields[4]);
           double score = 0.0;
           
+          // compute the score by different methods
           switch (method) {
             case 1:
               for (int i = 0; i < tnum; i++) {
@@ -205,6 +225,7 @@ public class TopicSensitivePageRank extends AbstractPageRank {
           result.put(docid, score);
         }
         
+        // sort the result according to the final score
         List<Entry<Integer, Double>> rankingItems = new ArrayList<Entry<Integer, Double>>(result.entrySet());
         Collections.sort(rankingItems, new Comparator<Entry<Integer, Double>>() {
 
