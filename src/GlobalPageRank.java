@@ -152,23 +152,44 @@ public class GlobalPageRank extends AbstractPageRank {
         String line = null;
         while((line = reader.readLine()) != null) {
           String[] fields = line.split(" ");
-          int docid = Integer.parseInt(fields[2]);
-          double relscore = Double.parseDouble(fields[4]);
-          double score = 0.0;
-          
-          // compute the score by different methods
-          switch (method) {
-            case 1:
-              score = scores.get(docid - 1);
-              break;
-            case 2:
-              score = scores.get(docid - 1) + relscore;
-              break;
-            case 3:
-              break;
-          }
-          
-          result.put(docid, score);
+          result.put(Integer.parseInt(fields[2]), Double.parseDouble(fields[4]));
+        }
+        
+        // compute the score by different methods
+        Set<Integer> docs = new HashSet<Integer>(result.keySet());
+        switch (method) {
+          case 1:
+            for (int docid : docs) {
+              result.put(docid, scores.get(docid - 1));
+            }
+            break;
+          case 2:
+            for (int docid : docs) {
+              result.put(docid, 0.2 * scores.get(docid - 1) + 0.8 * result.get(docid));
+            }
+            break;
+          case 3:
+            double prmax = Double.MIN_VALUE;
+            double prmin = Double.MAX_VALUE;
+            double relmax = Double.MIN_VALUE;
+            double relmin = Double.MAX_VALUE;
+            for (int docid : docs) {
+              double prvalue = scores.get(docid - 1);
+              if (prvalue > prmax) prmax = prvalue;
+              if (prvalue < prmin) prmin = prvalue;
+              
+              double relvalue = result.get(docid);
+              if (relvalue > relmax) relmax = relvalue;
+              if (relvalue < relmin) relmin = relvalue;
+            }
+            
+            for (int docid : docs) {
+              double relvalue = result.get(docid);
+              double prvalue = scores.get(docid - 1);
+              
+              result.put(docid, 0.2 * ((prvalue - prmin) / (prmax - prmin)) + 0.8 * ((relvalue - relmin) / (relmax - relmin)));
+            }
+            break;
         }
         
         // sort the result according to the final score
