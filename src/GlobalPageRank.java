@@ -113,7 +113,7 @@ public class GlobalPageRank extends AbstractPageRank {
   }
 
   public static void main(String[] args) {
-    
+    long starttime = System.currentTimeMillis();
     if (args.length != 3) {
       System.err.println("Usage: <test_dir> <method> <output>");
       return ;
@@ -221,7 +221,8 @@ public class GlobalPageRank extends AbstractPageRank {
     } catch (IOException e) {
       e.printStackTrace();
     }
- 
+    
+    System.out.println("Wall time: " + (System.currentTimeMillis() - starttime));
   }
 
 }

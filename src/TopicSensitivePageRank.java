@@ -158,6 +158,7 @@ public class TopicSensitivePageRank extends AbstractPageRank {
   }
 
   public static void main(String[] args) {
+    long starttime = System.currentTimeMillis();
     if (args.length != 5) {
       System.err.println("Usage: <topic_num> <distribution_file> <test_dir> <method> <output>");
       return ;
@@ -282,5 +283,7 @@ public class TopicSensitivePageRank extends AbstractPageRank {
     } catch (IOException e) {
       e.printStackTrace();
     }
+    
+    System.out.println("Wall time: " + (System.currentTimeMillis() - starttime));
   }
 }
